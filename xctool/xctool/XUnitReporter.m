@@ -59,6 +59,7 @@
 				
 				NSString *testTime = [NSString stringWithFormat:@"%f", [[testResult valueForKey:kReporter_EndTest_TotalDurationKey] doubleValue]];
 
+
 				BOOL passed = [testResult[kReporter_EndTest_SucceededKey] boolValue];
 				
 				NSString *testString = [NSString stringWithFormat:@"<testcase classname=\"%@\" name=\"%@\" time=\"%@\"></testcase>", suiteName, testName, testTime];
@@ -66,6 +67,7 @@
 				if (passed == NO) {
 					NSDictionary *exception = testResult[kReporter_EndTest_ExceptionKey];
 					NSString *message = [NSString stringWithFormat:@"%@: %@", exception[kReporter_EndTest_Exception_NameKey], exception[kReporter_EndTest_Exception_ReasonKey]];
+					message = (__bridge NSString *)(CFXMLCreateStringByEscapingEntities(kCFAllocatorDefault, (CFStringRef)CFBridgingRetain(message), NULL));
 					NSString *location = [NSString stringWithFormat:@"%@:%@", exception[kReporter_EndTest_Exception_FilePathInProjectKey], exception[kReporter_EndTest_Exception_LineNumberKey]];
 					
 					NSString *failureString = [NSString stringWithFormat:@"<failure message=\"%@\" type=\"Failure\">%@</failure>", message, location];
@@ -76,7 +78,9 @@
 					}
 					
 					if ([testResult[kReporter_EndTest_OutputKey] length] > 0) {
-						NSString *outputString = [NSString stringWithFormat:@"<system-out>%@</system-out>", testResult[kReporter_EndTest_OutputKey]];
+						NSString *output = testResult[kReporter_EndTest_OutputKey];
+						output = (__bridge NSString *)(CFXMLCreateStringByEscapingEntities(kCFAllocatorDefault, (CFStringRef)CFBridgingRetain(output), NULL));
+						NSString *outputString = [NSString stringWithFormat:@"<system-out>%@</system-out>", output];
 						NSXMLElement *outputElement = [[NSXMLElement alloc] initWithXMLString:outputString error:&xmlError];
 						if (xmlError == nil) {
 							[testElement addChild:outputElement];
